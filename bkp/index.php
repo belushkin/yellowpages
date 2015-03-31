@@ -40,7 +40,6 @@ if (isset($_POST['zoho'])) { //true
         <span>Enter URL here:</span>
         <input style="width:600px" type="text" name="url" value="<?php echo (isset($_POST['url'])) ? $_POST['url'] : '';?>">
         <input type="submit" value="Submit">
-        <input id="import" type="checkbox" name="import" value="1" <?php if (isset($_POST['import'])) {echo "checked='checked'";}?>> Import results to the CRM<br>
         <div id="exported">WORKING</div>
     </form>
     <?php
@@ -63,7 +62,6 @@ if (isset($_POST['zoho'])) { //true
 
     $xml    = '';
     $i      = 0;
-    $j      = 0;
     if (isset($_POST['url']) && !empty($_POST['url'])) {
         $url = trim($_POST['url']);
         $result = array();
@@ -234,18 +232,16 @@ if (isset($_POST['zoho'])) { //true
 
         function sendXml() {
             var xml = $("#xml").html();
-            if ($("#import").is(':checked')) {
-                $.ajax({
-                    url: 'http://auto-in-ato.com.ua/',
-                    method: "POST",
-                    dataType: "text",
-                    data: { xmlData: xml, "zoho":1 },
-                    success: function( data ) {
-                    },
-                    error: function( data ) {
-                    }
-                });
-            }
+            $.ajax({
+                url: 'http://auto-in-ato.com.ua/',
+                method: "POST",
+                dataType: "text",
+                data: { xmlData: xml, "zoho":1 },
+                success: function( data ) {
+                },
+                error: function( data ) {
+                }
+            });
         }
     </script>
     </html> <?php

@@ -1,12 +1,18 @@
 <?php
 
-if (isset($_POST['zoho'])) {
-    //$xmlData = '<Leads><row no="1"><FL val="Lead Source">Web Download</FL><FL val="Company">Your Company</FL><FL val="First Name">Hannah</FL><FL val="Last Name">Smith</FL><FL val="Email">testing@testing.com</FL><FL val="Title">Manager</FL><FL val="Phone">1234567890</FL><FL val="Home Phone">0987654321</FL><FL val="Other Phone">1212211212</FL><FL val="Fax">02927272626</FL><FL val="Mobile">292827622</FL></row></Leads>';
-    $token  = "6b5f27d96b653e4306c0eafb83fdde70";
+if (isset($_POST['zoho'])) { //true
+    //$xmlData = '<Leads><row no="1"><FL val="Company"><![CDATA[Capucci Salon %26 Spa]]></FL><FL val="First Name">Hannah</FL><FL val="Last Name">Smith</FL><FL val="Email">testing@testing.com</FL><FL val="Title">Manager</FL></row></Leads>';
+    //$xmlData = '<leads><row no="1"><fl val="Company">Capucci Salon &amp; Spa</fl><fl val="Phone">647-497-7479</fl><fl val="Street">2254A Bloor St W</fl><fl val="City">Toronto</fl><fl val="State">ON</fl><fl val="Zip Code">M6S 1N6</fl><fl val="Website">http://www.capucci.com</fl><fl val="Description">Desktop:YES, Website: YES, Mobile Friendly: NO, Mobile viewport not set, Text too small to read, Content wider than screen, Links too close together</fl></row><row no="2"><fl val="Company">Unique Touch</fl><fl val="Phone">416-532-3411</fl><fl val="Street">426 Ossington Ave</fl><fl val="City">Toronto</fl><fl val="State">ON</fl><fl val="Zip Code">M6J 3A7</fl><fl val="Website">http://www.uniquetouch.ca</fl><fl val="Description">Desktop:YES, Website: YES, Mobile Friendly: NO, Mobile viewport not set, Text too small to read, Links too close together</fl></row></leads>';
+    $xmlData    = '<leads><row no="1"><FL val="Company"><!--[CDATA[Unique%20Touch]]--></FL><FL val="Last Name">Unknown</FL><FL val="Phone">416-532-3411</FL><FL val="Street">426 Ossington Ave</FL><FL val="City">Toronto</FL><FL val="State">ON</FL><FL val="Zip Code">M6J 3A7</FL><FL val="Website">http://www.uniquetouch.ca</FL><FL val="Description">Desktop:YES, Website: YES, Mobile Friendly: NO, Mobile viewport not set, Text too small to read, Links too close together</FL></row><row no="2"><FL val="Company"><!--[CDATA[Capucci%20Salon%20%26%20Spa]]--></FL><FL val="Last Name">Unknown</FL><FL val="Phone">647-497-7479</FL><FL val="Street">2254A Bloor St W</FL><FL val="City">Toronto</FL><FL val="State">ON</FL><FL val="Zip Code">M6S 1N6</FL><FL val="Website">http://www.capucci.com</FL><FL val="Description">Desktop:YES, Website: YES, Mobile Friendly: NO, Mobile viewport not set, Text too small to read, Content wider than screen, Links too close together</FL></row></leads>';//
+    //$token      = "1497f1a52132d175b1530f8a2ec8ef44"; // OLD CRM
+    $token  = "f0796565362f3888f3cc1a94ffa7e305";   // NEW CRM
     $url    = "https://crm.zoho.com/crm/private/xml/Leads/insertRecords";
-    $param  = "authtoken=" . $token . "&scope=crmapi&xmlData=" . $_POST['xmlData'];
+    $param  = "authtoken=" . $token . "&scope=crmapi&xmlData=" . str_replace(array("<fl", "</fl>", "<!--[", "]]-->"), array("<FL", "</FL>", "<![", "]]>"), stripslashes($_POST['xmlData']));
 
-//    print_r($_POST);
+//    print_r(stripslashes($_POST['xmlData']));exit();
+//    print_r(str_replace(array("<fl", "</fl>"), array("<FL", "</FL>"), $xmlData));exit();
+    //print_r(html_entity_decode(rawurlencode("&amp;")));exit();
+//    print_r(str_replace(array("<fl", "</fl>", "<!--[", "]]-->"), array("<FL", "</FL>", "<![", "]]>"), stripslashes($_POST['xmlData'])));exit();
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     @curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -35,6 +41,9 @@ if (isset($_POST['zoho'])) {
         <span>Enter URL here:</span>
         <input style="width:600px" type="text" name="url" value="<?php echo (isset($_POST['url'])) ? $_POST['url'] : '';?>">
         <input type="submit" value="Submit">
+        <input id="import" type="checkbox" name="import" value="1" <?php if (isset($_POST['import'])) {echo "checked='checked'";}?>> Import results to the CRM<br><br/>
+        <span>Indepen-t C. #:&nbsp;&nbsp;</span>
+        <input style="width:200px" type="text" name="last_name" value="<?php echo (isset($_POST['last_name'])) ? strip_tags(trim($_POST['last_name'])) : '';?>">
         <div id="exported">WORKING</div>
     </form>
     <?php
@@ -57,6 +66,7 @@ if (isset($_POST['zoho'])) {
 
     $xml    = '';
     $i      = 0;
+    $j      = 0;
     if (isset($_POST['url']) && !empty($_POST['url'])) {
         $url = trim($_POST['url']);
         $result = array();
@@ -98,6 +108,7 @@ if (isset($_POST['zoho'])) {
         }
 
         $i = 1;
+        $j = 1;
         $xml = '<Leads>';
         foreach ($result as &$item) {
             echo $i;
@@ -110,27 +121,31 @@ if (isset($_POST['zoho'])) {
             // OUTPUT
             echo "<table border=1 width=400 bgcolor='#00FFD9' cellpadding='10' cellspacing='10'><tr><td>";
 
-            echo "<p><strong>Company:</strong> {$item['name']}</p>";$xml    .= '<FL val="Company">'.$item['name'].'</FL>';
-            echo "<p><strong>Phone:</strong> {$item['phone']}</p>";$xml     .= '<FL val="Phone">'.$item['phone'].'</FL>';
-            echo "<p><strong>Street:</strong> {$item['street']}</p>";$xml   .= '<FL val="Street">'.$item['street'].'</FL>';
-            echo "<p><strong>City:</strong> {$item['city']}</p>";$xml       .= '<FL val="City">'.$item['city'].'</FL>';
-            echo "<p><strong>State:</strong> {$item['state']}</p>";$xml     .= '<FL val="State">'.$item['state'].'</FL>';
-            echo "<p><strong>Zipcode:</strong> {$item['zipcode']}</p>";$xml .= '<FL val="Zip Code">'.$item['zipcode'].'</FL>';
-            echo "<p><strong>Website:</strong> {$item['Website']}</p>";$xml .= '<FL val="Website">'.$item['site'].'</FL>';
-            echo "<p><strong>Desktop:</strong> {$item['Desktop']}</p>";$xml .= '<FL val="Description">Desktop:'.$item['Desktop'].', Website: '.$item['Website'].'</FL>';
+            echo "<p><strong>Company:</strong> {$item['name']}</p>";        $xml .= '<FL val="Company"><![CDATA['.rawurlencode(html_entity_decode($item['name'])).']]></FL>';
+            echo "<p><strong>Last Name:</strong> {$_POST['last_name']}</p>";$xml .= '<FL val="Last Name">'.strip_tags(trim($_POST['last_name'])).'</FL>';
+            echo "<p><strong>Phone:</strong> {$item['phone']}</p>";         $xml .= '<FL val="Phone">'.$item['phone'].'</FL>';
+            echo "<p><strong>Street:</strong> {$item['street']}</p>";       $xml .= '<FL val="Street">'.$item['street'].'</FL>';
+            echo "<p><strong>City:</strong> {$item['city']}</p>";           $xml .= '<FL val="City">'.$item['city'].'</FL>';
+            echo "<p><strong>State:</strong> {$item['state']}</p>";         $xml .= '<FL val="State">'.$item['state'].'</FL>';
+            echo "<p><strong>Zipcode:</strong> {$item['zipcode']}</p>";     $xml .= '<FL val="Zip Code">'.$item['zipcode'].'</FL>';
+            echo "<p><strong>Website:</strong> {$item['Website']}</p>";     $xml .= '<FL val="Website">'.$item['site'].'</FL>';
+            echo "<p><strong>Desktop:</strong> {$item['Desktop']}</p>";     $xml .= '<FL val="Description">Desktop:'.$item['Desktop'].', Website: '.$item['Website'].'</FL>';
             echo "<p><strong>Site:</strong> <span class='site'>{$item['site']}</span></p>";
 
             echo "</td></tr></table><br/>";
             $xml .= '</row>';
             $i++;
-            if ($i == 3) {
-                break;
+//            if ($i == 3) {
+//                break;
+//            }
+            if ($item['Website'] == 'YES') {
+                $j++;
             }
         }
         $xml .= '</Leads>';
     }
     echo "<div id='xml'>{$xml}</div>";
-    echo "<div id='count'>{$i}</div>";
+    echo "<div id='count'>{$j}</div>";
     //exit();
     ?>
     </body>
@@ -222,16 +237,18 @@ if (isset($_POST['zoho'])) {
 
         function sendXml() {
             var xml = $("#xml").html();
-            $.ajax({
-                url: 'http://auto-in-ato.com.ua/',
-                method: "POST",
-                dataType: "text",
-                data: { xmlData: xml, "zoho":1 },
-                success: function( data ) {
-                },
-                error: function( data ) {
-                }
-            });
+            if ($("#import").is(':checked')) {
+                $.ajax({
+                    url: 'http://auto-in-ato.com.ua/',
+                    method: "POST",
+                    dataType: "text",
+                    data: { xmlData: xml, "zoho":1 },
+                    success: function( data ) {
+                    },
+                    error: function( data ) {
+                    }
+                });
+            }
         }
     </script>
     </html> <?php

@@ -38,12 +38,21 @@ if (isset($_POST['zoho'])) { //true
     </style>
 
     <form method="post">
-        <span>Enter URL here:</span>
+        <span>Enter URL here:</span><br>
         <input style="width:600px" type="text" name="url" value="<?php echo (isset($_POST['url'])) ? $_POST['url'] : '';?>">
         <input type="submit" value="Submit">
         <input id="import" type="checkbox" name="import" value="1" <?php if (isset($_POST['import'])) {echo "checked='checked'";}?>> Import results to the CRM<br><br/>
-        <span>Indepen-t C. #:&nbsp;&nbsp;</span>
-        <input style="width:200px" type="text" name="last_name" value="<?php echo (isset($_POST['last_name'])) ? strip_tags(trim($_POST['last_name'])) : '';?>">
+        <span>IC Last Name:&nbsp;&nbsp;</span><br/>
+        <input style="width:200px" type="text" name="last_name" value="<?php echo (isset($_POST['last_name'])) ? strip_tags(trim($_POST['last_name'])) : '';?>"><br/><br/>
+        <span>Independend Contractor number:&nbsp;&nbsp;</span><br/>
+        <input style="width:200px" type="text" name="number" value="<?php echo (isset($_POST['number'])) ? strip_tags(trim($_POST['number'])) : '';?>"><br/><br/>
+        <span>Area:&nbsp;&nbsp;</span><br/>
+        <input style="width:200px" type="text" name="area" value="<?php echo (isset($_POST['area'])) ? strip_tags(trim($_POST['area'])) : '';?>"><br/><br/>
+        <span>Category:&nbsp;&nbsp;</span><br/>
+        <input style="width:200px" type="text" name="category" value="<?php echo (isset($_POST['category'])) ? strip_tags(trim($_POST['category'])) : '';?>"><br/><br/>
+        <span>Example of Mobile Friendly site:</span><br/>
+        <input style="width:200px" type="text" name="mobile" value="<?php echo (isset($_POST['mobile'])) ? strip_tags(trim($_POST['mobile'])) : '';?>"><br/><br/>
+
         <div id="exported">WORKING</div>
     </form>
     <?php
@@ -123,6 +132,10 @@ if (isset($_POST['zoho'])) { //true
 
             echo "<p><strong>Company:</strong> {$item['name']}</p>";        $xml .= '<FL val="Company"><![CDATA['.rawurlencode(html_entity_decode($item['name'])).']]></FL>';
             echo "<p><strong>Last Name:</strong> {$_POST['last_name']}</p>";$xml .= '<FL val="Last Name">'.strip_tags(trim($_POST['last_name'])).'</FL>';
+            echo "<p><strong>IC Number trial:</strong> {$_POST['number']}</p>";$xml .= '<FL val="IC Number trial">'.strip_tags(trim($_POST['number'])).'</FL>';
+            echo "<p><strong>Area:</strong> {$_POST['area']}</p>";$xml .= '<FL val="Area">'.strip_tags(trim($_POST['area'])).'</FL>';
+            echo "<p><strong>Catigory:</strong> {$_POST['category']}</p>";$xml .= '<FL val="Catigory">'.strip_tags(trim($_POST['category'])).'</FL>';
+            echo "<p><strong>Example of Mobile Friendly site:</strong> {$_POST['mobile']}</p>";$xml .= '<FL val="Example of Mobile Friendly site">'.strip_tags(trim($_POST['mobile'])).'</FL>';
             echo "<p><strong>Phone:</strong> {$item['phone']}</p>";         $xml .= '<FL val="Phone">'.$item['phone'].'</FL>';
             echo "<p><strong>Street:</strong> {$item['street']}</p>";       $xml .= '<FL val="Street">'.$item['street'].'</FL>';
             echo "<p><strong>City:</strong> {$item['city']}</p>";           $xml .= '<FL val="City">'.$item['city'].'</FL>';
@@ -239,7 +252,7 @@ if (isset($_POST['zoho'])) { //true
             var xml = $("#xml").html();
             if ($("#import").is(':checked')) {
                 $.ajax({
-                    url: 'http://auto-in-ato.com.ua/',
+                    url: 'http://parser.dev.kiev.ua//',
                     method: "POST",
                     dataType: "text",
                     data: { xmlData: xml, "zoho":1 },
